@@ -61,6 +61,13 @@ const FISHES = {
         spawnDepthMin: 1400,
         spawnDepthMax: undefined,
     },
+    'green': {
+        speed: 0.7,
+        width: 48,
+        height: 40,
+        spawnDepthMin: 2000,
+        spawnDepthMax: 2600,
+    },
 };
 
 const LURE_Y_OFFSET = 130;
