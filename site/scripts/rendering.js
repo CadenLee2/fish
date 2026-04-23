@@ -161,12 +161,19 @@ const uiResults = document.getElementById('results');
 const uiFishlist = document.getElementById('fishlist');
 const uiShare = document.getElementById('share');
 
+const sumFishResults = (fishTypeCounts) => {
+    const totalFishPrice = Object.entries(fishTypeCounts).reduce((prev, [type, count]) => prev + FISHES[type].price * count, 0);
+    const totalFishCount = Object.values(fishTypeCounts).reduce((prev, count) => prev + count, 0);
+    return { totalFishPrice, totalFishCount };
+}
+
 const renderUIFishlist = (state) => {
     const fishTypeCounts = state.lastGame.results.fishTypeCounts;
     // TODO: memoize this so it only happens once (update in state)
     while (uiFishlist.firstChild) {
         uiFishlist.removeChild(uiFishlist.lastChild);
     }
+    const { totalFishPrice, totalFishCount } = sumFishResults(fishTypeCounts);
     Object.entries(fishTypeCounts).forEach(([type, count]) => {
         const fishCell = document.createElement('div');
         fishCell.className = 'fishcell';
@@ -174,17 +181,31 @@ const renderUIFishlist = (state) => {
         fishImg.src = `assets/textures/fish_${type}.png`;
         fishCell.appendChild(fishImg);
         const fishDescr = document.createElement('span');
-        fishDescr.innerText = `x${count}`;
+        fishDescr.innerText = `x${count} = $${FISHES[type].price * count}`;
         fishCell.appendChild(fishDescr);
         uiFishlist.appendChild(fishCell);
     });
+    const totalCell = document.createElement('div');
+    totalCell.className = 'fishcell';
+    totalCell.innerText = `Total: ${totalFishCount} fish, $${totalFishPrice}`
+    uiFishlist.appendChild(totalCell)
 }
 
 const generateShareOnclick = (state) => {
+    const fishTypeCounts = state.lastGame.results.fishTypeCounts;
+    const { totalFishPrice, totalFishCount } = sumFishResults(fishTypeCounts);
+
+    const generateFishRow = (type, count) => {
+        return `🐟 ${type} x${count} = $${FISHES[type].price * count}\n`;
+    }
+
     return () => {
         const toShowFish = state.lastGame.results.fishTypeCounts;
         const gameUrl = window.location.href;
-        const shareText = `My results for ${gameUrl}\n` + Object.entries(toShowFish).map(([type, count]) => `🐟 ${type} x${count}\n`).reduce((a, b) => a + b);
+        const shareText = `My results for ${gameUrl}\n`
+            + Object.entries(toShowFish).map(([type, count]) => generateFishRow(type, count)).reduce((a, b) => a + b)
+            + '---\n'
+            + `Total: ${totalFishCount} fish, $${totalFishPrice}`;
         navigator.clipboard.writeText(shareText);
         uiShare.innerText = 'Copied!';
     };
@@ -216,11 +237,6 @@ const renderUI = (state) => {
 }
 
 const render = (state) => {
-    const width = ctx.canvas.width;
-    const height = ctx.canvas.height;
-
-    const animationMs = Date.now();
-
     renderBg(state, ctx);
     
     if (state.status === 'descending' || state.status === 'ascending') {

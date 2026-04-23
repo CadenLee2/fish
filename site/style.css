@@ -126,7 +126,8 @@ a:focus-visible {
 
         .separated {
             flex-grow: 1;
-            overflow: scroll;
+            overflow-y: scroll;
+            overflow-x: hidden;
         }
 
         #fishlist {
