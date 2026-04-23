@@ -11,6 +11,7 @@ const DEFAULT_GAME_STATE = {
     fishes: [],
     nextSpawnTime: null,
     lastGame: null,
+    resultsShown: false,
 }
 
 // Misc. options for debugging

@@ -227,10 +227,14 @@ const renderUI = (state) => {
     } else if (state.status === 'results') {
         uiHint.innerText = '[space/tap] close';
         uiResults.style.display = 'flex';
-        renderUIFishlist(state);
-        // TODO: also memoize this so it only happens once
-        // Override existing onclick
-        uiShare.onclick = generateShareOnclick(state);
+        // Only render results once
+        if (!state.resultsShown) {
+            renderUIFishlist(state);
+            state.resultsShown = true;
+            uiShare.innerText = "Share";
+            // Override existing onclick, because this must be generated each time
+            uiShare.onclick = generateShareOnclick(state);
+        }
     } else {
         uiHint.innerText = '';
     }
